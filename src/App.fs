@@ -14,11 +14,11 @@ type Todo = {
 
 type State = { 
   TodoList: Todo list 
-  NewTodoDescription : string 
+  NewTodo : string 
 }
 
 type Msg =
-  | SetNewTodoDescription of string 
+  | SetNewTodo of string 
   | AddNewTodo 
   | DeleteTodo of int
   | ToggleCompleted of int
@@ -28,15 +28,15 @@ let init() = {
     { Id = 1; Description = "Learn F#"; Completed = true } 
     { Id = 2; Description = "Learn Elmish"; Completed = false } 
   ]
-  NewTodoDescription = "" 
+  NewTodo = "" 
 }
 
 let update (msg: Msg) (state: State) =
   match msg with
-  | SetNewTodoDescription desc -> 
-      { state with NewTodoDescription = desc }
+  | SetNewTodo desc -> 
+      { state with NewTodo = desc }
   
-  | AddNewTodo when String.IsNullOrWhiteSpace state.NewTodoDescription ->
+  | AddNewTodo when state.NewTodo = "" ->
       state 
 
   | AddNewTodo ->
@@ -50,11 +50,11 @@ let update (msg: Msg) (state: State) =
 
       let nextTodo = 
         { Id = nextTodoId
-          Description = state.NewTodoDescription
+          Description = state.NewTodo
           Completed = false }
           
       { state with 
-          NewTodoDescription = ""
+          NewTodo = ""
           TodoList = List.append state.TodoList [nextTodo] }
 
   | DeleteTodo todoId ->
@@ -79,8 +79,8 @@ let createTodoTextbox state dispatch =
     div [ Class "control is-expanded" ] [ 
       input [ 
         Class "input is-medium"
-        valueOrDefault state.NewTodoDescription
-        OnChange (fun ev -> dispatch (SetNewTodoDescription ev.Value)) ]
+        valueOrDefault state.NewTodo
+        OnChange (fun ev -> dispatch (SetNewTodo ev.Value)) ]
     ] 
     div [ Class "control" ] [ 
       button [ Class "button is-primary is-medium"; OnClick (fun _ -> dispatch AddNewTodo) ] [ 
@@ -98,17 +98,16 @@ let renderTodo (todo: Todo) (dispatch: Msg -> unit) =
     ]
     
   div [ Class "box" ] [ 
-    div [ Class "columns is-mobile" ] [ 
+    div [ Class "columns is-mobile" ] [
       div [ Class "column" ] [
-        p [ Class "subtitle is-4" ] [ str todo.Description ] 
-      ]
-      div [ Class "column" ] [
+        p [ Class "subtitle" ] [ str todo.Description ] 
+      ] 
+      div [ Class "column is-4" ] [
         div [ Class "buttons is-right" ] [
-          button [ checkButtonStyle; Style [ Margin 5 ]; OnClick(fun _ -> dispatch (ToggleCompleted todo.Id))  ] [
+          button [ checkButtonStyle; OnClick (fun _ -> dispatch (ToggleCompleted todo.Id))  ] [
             i [ Class "fa fa-check" ] [ ] 
           ] 
-          
-          button [ Class "button is-danger"; Style [ Margin 5; ]; OnClick (fun _ -> dispatch (DeleteTodo todo.Id)) ] [ 
+          button [ Class "button is-danger"; OnClick (fun _ -> dispatch (DeleteTodo todo.Id)) ] [
             i [ Class "fa fa-times" ] [ ] 
           ] 
         ]
@@ -127,5 +126,4 @@ let render (state: State) (dispatch: Msg -> unit) =
 
 Program.mkSimple init update render
 |> Program.withReactSynchronous "elmish-app"
-|> Program.withConsoleTrace
 |> Program.run
