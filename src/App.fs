@@ -137,7 +137,7 @@ let renderTodo (todo: Todo) (dispatch: Msg -> unit) =
   ]
 
 let todoList (state: State) (dispatch: Msg -> unit) =
-  Html.unorderedList [
+  Html.ul [
     prop.children [
       for todo in state.TodoList ->
         renderTodo todo dispatch

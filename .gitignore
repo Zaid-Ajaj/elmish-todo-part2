@@ -192,6 +192,7 @@ docs/content/release-notes.md
 .fake
 docs/tools/FSharp.Formatting.svclog
 .ionide.debug
+.ionide
 *.bak
 project.lock.json
 .fable
